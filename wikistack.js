@@ -10,7 +10,7 @@ var app = express();
 
 models.User.sync({})
     .then(function() {
-        models.Page.sync({})
+        models.Page.sync({force: true})
     })
     .then(function() {
         app.listen(3001, function() {

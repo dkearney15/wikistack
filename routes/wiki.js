@@ -7,9 +7,6 @@ wikiRouter.use(bodyparser.urlencoded({
 }));
 wikiRouter.use(bodyparser.json());
 
-wikiRouter.get('/', function(req,res){
-    res.redirect('/')
-});
 
 wikiRouter.get('/add', function(req,res){
     res.render('addpage');
@@ -23,18 +20,55 @@ wikiRouter.post('/', function(req, res, next) {
 
   // STUDENT ASSIGNMENT:
   // add definitions for `title` and `content`
-  console.log(req.body.title);
+
   var page = Page.build({
     title: req.body.title,
-    content: req.body.textArea
+    content: req.body.textArea,
+    authorName: req.body.authorName
   });
 
+    var user = User.build({
+        name: req.body.authorName,
+        email: req.body.authorEmail
+    });
+
+    user.save().then(function(result){
+        console.log('user saved');
+    })
   // STUDENT ASSIGNMENT:
   // make sure we only redirect *after* our save is complete!
   // note: `.save` returns a promise or it can take a callback.
-  page.save();
+  page.save()
+  .then(function(result){
+      res.redirect(result.route);
+  });
+
+
+  
   // -> after save -> res.redirect('/');
 });
 
+wikiRouter.get('/', function(req,res){
+    Page.findAll({})
+    .then(function(foundPages){
+        console.log(foundPages);
+        res.render('index', {pages: foundPages});
+    })
+});
+
+wikiRouter.get('/:urlTitle', function(req, res, next){
+    console.log(req.params);
+    Page.findOne({
+        where: {
+            urlTitle: req.params.urlTitle
+        }
+    })
+    .then(function(foundPage){
+        console.log(foundPage)
+        res.render('wikipage', {title: foundPage.title, content: foundPage.content, authorName: foundPage.authorName});
+    })
+    .catch(next);
+
+});
 
 module.exports = wikiRouter;

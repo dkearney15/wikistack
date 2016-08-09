@@ -42,6 +42,8 @@ var User = db.define('user', {
     }
 });
 
+Page.belongsTo(User, { as: 'author' });
+
 function generateUrlTitle (title) {
   if (title) {
     // Removes all non-alphanumeric characters from title
